@@ -219,3 +219,60 @@ usort($transactions, function ($a, $b) {
 $result = findTransactionById(2);
 $totalAmount = calculateTotalAmount($transactions);
 ?>
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Transactions</title>
+</head>
+
+<body>
+    <h2>Список транзакций</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Description</th>
+                <th>Merchant</th>
+                <th>Days Ago</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($transactions as $transaction): ?>
+                <tr>
+                    <td>
+                        <?= $transaction['id'] ?>
+                    </td>
+                    <td>
+                        <?= $transaction['date']->format('Y-m-d') ?>
+                    </td>
+                    <td>
+                        <?= number_format($transaction['amount'], 2) ?>
+                    </td>
+                    <td>
+                        <?= htmlspecialchars($transaction['description']) ?>
+                    </td>
+                    <td>
+                        <?= htmlspecialchars($transaction['merchant']) ?>
+                    </td>
+                    <td>
+                        <?= daysSinceTransaction($transaction['date']->format('Y-m-d')) ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            <tr>
+                <td colspan="2"><strong>Total:</strong></td>
+                <td><strong>
+                        <?= number_format($totalAmount, 2) ?>
+                    </strong></td>
+                <td colspan="2"></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+</html>
