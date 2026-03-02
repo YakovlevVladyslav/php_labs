@@ -1,31 +1,59 @@
 <?php
 declare(strict_types=1);
 
-// Путь к папке с изображениями
-$dir = __DIR__ . '/image/';      // физический путь на сервере
-$dirWeb = 'image/';              // путь для браузера (URL)
+/**
+ * Absolute filesystem path to the image directory.
+ *
+ * @var string
+ */
+$dir = __DIR__ . '/image/';
 
-// Сканируем директорию
+/**
+ * Web-accessible path to the image directory (used in <img src="">).
+ *
+ * @var string
+ */
+$dirWeb = 'image/';
+
+/**
+ * Scan the image directory and retrieve all files and folders.
+ *
+ * @var array<int, string>|false $files
+ */
 $files = scandir($dir);
 
+/**
+ * Filtered list of valid JPG image filenames.
+ *
+ * @var array<int, string> $images
+ */
 if ($files === false) {
     $images = [];
 } else {
-    // Оставляем только .jpg (и .JPG тоже)
+    /**
+     * Filter directory contents:
+     * - Exclude "." and ".."
+     * - Allow only .jpg files (case-insensitive)
+     * - Ensure the file actually exists
+     */
     $images = array_filter($files, function ($file) use ($dir) {
         if ($file === '.' || $file === '..') {
             return false;
         }
-        // проверка расширения
+
         $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
         if ($ext !== 'jpg') {
             return false;
         }
-        // на всякий случай — файл должен существовать
+
         return is_file($dir . $file);
     });
 
-    // Переиндексируем массив
+    /**
+     * Reindex array keys after filtering.
+     *
+     * @var array<int, string>
+     */
     $images = array_values($images);
 }
 ?>
@@ -33,7 +61,7 @@ if ($files === false) {
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Галерея</title>
+    <title>Gallery</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 0; }
         header, footer { padding: 16px 20px; background: #f2f2f2; }
@@ -46,6 +74,7 @@ if ($files === false) {
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 12px;
         }
+
         .card {
             width: 250px;
             height: 200px;
@@ -61,12 +90,14 @@ if ($files === false) {
             object-fit: contain;
             display: block;
         }
+
         .caption {
             margin-top: 6px;
             font-size: 12px;
             color: #555;
             word-break: break-word;
         }
+
         .empty {
             padding: 12px;
             border: 1px dashed #999;
@@ -77,27 +108,33 @@ if ($files === false) {
 <body>
 
 <header>
-    <h1>Моя фотогалерея</h1>
+    <h1>My Photo Gallery</h1>
 </header>
 
 <nav>
-    <a href="#">Главная</a>
-    <a href="#">Галерея</a>
-    <a href="#">Контакты</a>
+    <a href="#">Home</a>
+    <a href="#">Gallery</a>
+    <a href="#">Contacts</a>
 </nav>
 
 <main>
-    <h2>Изображения из папки /image</h2>
+    <h2>Images from the /image directory</h2>
 
     <?php if (count($images) === 0): ?>
         <div class="empty">
-            В папке <b>image</b> не найдено .jpg файлов. Проверь, что изображения лежат в <code>./image/</code>.
+            No .jpg files were found in the <b>image</b> directory.
+            Please ensure images are located in <code>./image/</code>.
         </div>
     <?php else: ?>
         <div class="gallery">
             <?php foreach ($images as $file): ?>
                 <?php
-                // Формируем безопасный URL (имя файла может содержать пробелы)
+                /**
+                 * Generate a safe URL for the image file.
+                 * rawurlencode() ensures proper encoding of filenames with spaces.
+                 *
+                 * @var string $url
+                 */
                 $url = $dirWeb . rawurlencode($file);
                 ?>
                 <div class="card">
@@ -110,7 +147,7 @@ if ($files === false) {
 </main>
 
 <footer>
-    <small>© <?= date('Y') ?> Галерея на PHP</small>
+    <small>© <?= date('Y') ?> PHP Gallery</small>
 </footer>
 
 </body>
