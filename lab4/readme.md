@@ -20,7 +20,7 @@ http://localhost:8000
 
 ## Краткая документация
 
-
+scandir($dir) - системная функция для получения массива файлов и папок из указанной директории
 
 ## Ход работы
 
@@ -96,21 +96,128 @@ function calculateTotalAmount(array $transactions): float
 ```
 Выведите сумму всех транзакций в конце таблицы.
 ```
-
+<tr>
+    <td colspan="2"><strong>Total:</strong></td>
+        <td><strong>
+                <?= number_format($totalAmount, 2) ?>
+        </strong></td>
+    <td colspan="2"></td>
+</tr>
 ```
 
 Создайте функцию findTransactionByDescription(string $descriptionPart), которая ищет транзакцию по части описания.
-Создайте функцию findTransactionById(int $id), которая ищет транзакцию по идентификатору.
-Реализуйте данную функцию с помощью обычного цикла foreach.
-Реализуйте данную функцию с помощью функции array_filter (на высшую оценку).
+```
+function findTransactionByDescription(string $descriptionPart): ?array
+{
+    global $transactions;
+
+    foreach ($transactions as $transaction) {
+        if (stripos($transaction['description'], $descriptionPart) !== false) {
+            return $transaction;
+        }
+    }
+
+    return null;
+}
+```
+
+Создайте функцию findTransactionById(int $id), которая ищет транзакцию по идентификатору. Реализуйте данную функцию с помощью функции array_filter (на высшую оценку).
+```
+function findTransactionById(int $id): ?array
+{
+    global $transactions;
+
+    $filtered = array_filter(
+        $transactions,
+        fn($transaction) => $transaction['id'] === $id
+    );
+
+    if (empty($filtered)) {
+        return null;
+    }
+
+    return array_values($filtered)[0];
+}
+```
+
 Создайте функцию daysSinceTransaction(string $date): int, которая возвращает количество дней между датой транзакции и текущим днем.
+```
+function daysSinceTransaction(string $date): int
+{
+    $transactionDate = new DateTime($date);
+    $currentDate = new DateTime();
+
+    $difference = $currentDate->diff($transactionDate);
+
+    return (int) $difference->format('%a');
+}
+```
+
 Добавьте в таблицу столбец с количеством дней с момента транзакции.
+```
+<td>
+    <?= daysSinceTransaction($transaction['date']->format('Y-m-d')) ?>
+</td>
+```
+
 Создайте функцию addTransaction(int $id, string $date, float $amount, string $description, string $merchant): void для добавления новой транзакции.
 Примите во внимание, что массив $transactions должен быть доступен внутри функции как глобальная переменная.
+```
+function addTransaction(
+    int $id,
+    string $date,
+    float $amount,
+    string $description,
+    string $merchant
+): void {
+    global $transactions;
+
+    foreach ($transactions as $transaction) {
+        if ($transaction['id'] === $id) {
+            return;
+        }
+    }
+
+    $transactions[] = [
+        "id" => $id,
+        "date" => new DateTime($date),
+        "amount" => $amount,
+        "description" => $description,
+        "merchant" => $merchant,
+    ];
+}
+```
+
 Задание 1.5. Сортировка транзакций
 Отсортируйте транзакции по дате с использованием usort().
-Отсортируйте транзакции по сумме (по убыванию).
+```
+// Sort by date (ascending)
+usort($transactions, function ($a, $b) {
+    return $a['date'] <=> $b['date'];
+});
+```
 
+Отсортируйте транзакции по сумме (по убыванию).
+```
+// Sort by amount (descending)
+usort($transactions, function ($a, $b) {
+    return $b['amount'] <=> $a['amount'];
+});
+```
+
+Result:
+![index.php screenshot](./Task1_Arrays/site_screenshot.png)
+
+### Задание 2. Работа с файловой системой
+
+Создайте директорию "image", в которой сохраните не менее 20-30 изображений с расширением .jpg.
+
+Затем создайте файл index.php, в котором определите веб-страницу с хедером, меню, контентом и футером.
+
+Выведите изображения из директории "image" на веб-страницу в виде галереи.
+
+Result: 
+![gallery](./Task2_filesystem/site_screenshot.png)
 
 
 ## Контрольные вопросы
