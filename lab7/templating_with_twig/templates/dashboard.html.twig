@@ -1,0 +1,87 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+{# Подключаем форму ввода #}
+{% include 'conflict_form.html.twig' %}
+
+{% if conflicts is not empty %}
+<div class="result">
+  <h2>Stored Conflicts</h2>
+  <table id="conflictTable">
+    <thead>
+      <tr>
+        <th onclick="sortTable(0)">ID <span>▼</span></th>
+        <th>Title</th>
+        <th onclick="sortTable(2)">Date <span>▼</span></th>
+        <th>Nuclear</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for conflict in conflicts %}
+      <tr>
+        <td>{{ conflict.id }}</td>
+        <td><strong>{{ conflict.title }}</strong></td>
+        <td>{{ conflict.date }}</td>
+
+        {# Применяем ядерный фильтр #}
+        <td>{{ conflict.nuclear | nuclear_badge }}</td>
+
+        {# Применяем фильтр статуса.
+        Важно: используем фильтр 'raw', если в фильтре есть HTML-теги,
+        но здесь у нас просто текст с эмодзи #}
+        <td>{{ conflict.active | status_label }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block javascripts %}
+<script>
+  function sortTable(n) {
+    var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+    table = document.getElementById("conflictTable");
+    switching = true;
+    dir = "asc";
+
+    while (switching) {
+      switching = false;
+      rows = table.rows;
+      for (i = 1; i < (rows.length - 1); i++) {
+        shouldSwitch = false;
+        x = rows[i].getElementsByTagName("TD")[n];
+        y = rows[i + 1].getElementsByTagName("TD")[n];
+
+        // Check if we are sorting by ID (number) or Date (string)
+        var xValue = n === 0 ? Number(x.innerHTML) : x.innerHTML.toLowerCase();
+        var yValue = n === 0 ? Number(y.innerHTML) : y.innerHTML.toLowerCase();
+
+        if (dir == "asc") {
+          if (xValue > yValue) {
+            shouldSwitch = true;
+            break;
+          }
+        } else if (dir == "desc") {
+          if (xValue < yValue) {
+            shouldSwitch = true;
+            break;
+          }
+        }
+      }
+      if (shouldSwitch) {
+        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+        switching = true;
+        switchcount++;
+      } else {
+        if (switchcount == 0 && dir == "asc") {
+          dir = "desc";
+          switching = true;
+        }
+      }
+    }
+  }
+</script>
+{% endblock %}

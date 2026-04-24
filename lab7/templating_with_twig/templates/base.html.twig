@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Conflict Tracker{% endblock %}</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 40px auto; background: #f4f4f9; }
+        form, .result { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        div { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        input[type="checkbox"] { width: auto; }
+        button { background: #2ecc71; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; }
+        .result { border-left: 5px solid #3498db; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background: #eee; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>{% block header %}Conflict Data Entry{% endblock %}</h1>
+    
+    {% block content %}{% endblock %}
+
+    {% block javascripts %}{% endblock %}
+</body>
+</html>

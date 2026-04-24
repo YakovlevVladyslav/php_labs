@@ -1,0 +1,28 @@
+<form method="POST" action="src/conflictFormHandler.php">
+    <div>
+        <label>Title:</label>
+        <input type="text" name="title" required>
+    </div>
+    <div>
+        <label>Description:</label>
+        <textarea name="description" required></textarea>
+    </div>
+    <div>
+        <label>Starting Date:</label>
+        <input type="date" name="startingDate" required>
+    </div>
+    <div>
+        <label>Nuclear Involvement:</label>
+        <select name="nuclearWeapon">
+            <option value="yes">Yes</option>
+            <option value="yes, but not officially">Yes, but not officially</option>
+            <option value="not yet">Not yet</option>
+        </select>
+    </div>
+    <div>
+        <label>
+            <input type="checkbox" name="isActive" value="1"> Active Conflict
+        </label>
+    </div>
+    <button type="submit">Initialize Conflict Object</button>
+</form>
