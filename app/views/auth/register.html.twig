@@ -1,0 +1,52 @@
+{% extends "layouts/base.html.twig" %}
+
+{% block title %}Регистрация — AutoFix{% endblock %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 0 auto; padding: 20px;">
+    <h2>Регистрация нового клиента</h2>
+
+    {% if errors %}
+        <div style="color: red; border: 1px solid red; padding: 10px; margin-bottom: 15px;">
+            <ul style="margin: 0; padding-left: 20px;">
+                {% for error in errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <form action="/register" method="POST">
+        <div style="margin-bottom: 10px;">
+            <label>Ваш Email *</label><br>
+            <input type="email" name="email" value="{{ old.email }}" style="width: 100%;" required>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <label>ФИО полностью *</label><br>
+            <input type="text" name="full_name" value="{{ old.full_name }}" style="width: 100%;" required>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <label>Номер телефона *</label><br>
+            <input type="text" name="phone" value="{{ old.phone }}" placeholder="+380..." style="width: 100%;" required>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <label>Пароль (мин. 6 символов) *</label><br>
+            <input type="password" name="password" style="width: 100%;" required>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label>Подтвердите пароль *</label><br>
+            <input type="password" name="password_confirm" style="width: 100%;" required>
+        </div>
+
+        <button type="submit" style="width: 100%; padding: 10px; background: #28a745; color: white; border: none; cursor: pointer;">Зарегистрироваться</button>
+    </form>
+
+    <p style="text-align: center; margin-top: 15px;">
+        Уже есть аккаунт? <a href="/login">Войти</a>
+    </p>
+</div>
+{% endblock %}

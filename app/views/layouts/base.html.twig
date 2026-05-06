@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}AutoFix{% endblock %}</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0;">
+    <header style="background: #343a40; color: white; padding: 15px 20px;">
+        <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+            <h1 style="margin: 0;">
+                <a href="/" style="color: white; text-decoration: none;">AutoFix СТО</a>
+            </h1>
+            <nav style="display: flex; align-items: center;">
+                <a href="/" style="color: white; text-decoration: none; margin-right: 20px;">Главная</a>
+                
+                {% if session.user_id %}
+                    <a href="/my-appointments" style="color: #ffc107; text-decoration: none; margin-right: 20px; font-weight: bold;">Мои записи</a>
+                    <a href="/appointment/create" style="color: white; text-decoration: none; margin-right: 20px; background: #007bff; padding: 5px 10px; border-radius: 3px;">Записаться на СТО</a>
+                    
+                    {% if session.user_role == 'admin' %}
+                        <a href="/admin" style="color: #dc3545; text-decoration: none; font-weight: bold; margin-right: 20px;">Админ-панель</a>
+                    {% endif %}
+                    
+                    <span style="color: #adb5bd; margin-right: 15px;">|</span>
+                    <span style="color: #ffffff; margin-right: 15px; font-style: italic;">Привет, {{ session.user_name }}!</span>
+                    <a href="/logout" style="color: #ef4444; text-decoration: none; font-weight: bold;">Выйти</a>
+                {% else %}
+                    <a href="/login" style="color: white; text-decoration: none; margin-right: 20px;">Вход</a>
+                    <a href="/register" style="color: white; text-decoration: none; background: #28a745; padding: 5px 10px; border-radius: 3px; font-weight: bold;">Регистрация</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main style="max-width: 1200px; margin: 30px auto; padding: 20px; background: white; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); min-height: 400px;">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer style="text-align: center; padding: 20px; color: #6c757d; margin-top: 50px; border-top: 1px solid #dee2e6;">
+        <p>&copy; 2026 AutoFix. Лабораторная работа.</p>
+    </footer>
+</body>
+</html>

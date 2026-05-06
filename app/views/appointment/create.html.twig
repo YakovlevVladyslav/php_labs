@@ -1,0 +1,71 @@
+{% extends "layouts/base.html.twig" %}
+
+{% block title %}Запись на СТО — AutoFix{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+    <h2>Онлайн-запись на ремонт автомобиля</h2>
+    <p>Заполните форму ниже, чтобы забронировать время визита на СТО.</p>
+
+    {% if errors %}
+        <div style="color: red; border: 1px solid red; padding: 10px; margin-bottom: 15px;">
+            <ul style="margin: 0; padding-left: 20px;">
+                {% for error in errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <form action="/appointment/create" method="POST" style="background: #f8f9fa; padding: 20px; border-radius: 5px; border: 1px solid #dee2e6;">
+        
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold;">1. Выберите услугу *</label><br>
+            <select name="service_id" style="width: 100%; padding: 8px;" required>
+                <option value="">-- Выберите из списка --</option>
+                {% for service in services %}
+                    <option value="{{ service.id }}" {% if old.serviceId == service.id %}selected{% endif %}>
+                        {{ service.name }} ({{ service.price }} руб.)
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+            <div style="flex: 1;">
+                <label style="font-weight: bold;">Марка авто *</label>
+                <input type="text" name="car_make" value="{{ old.carMake }}" placeholder="например, Toyota" style="width: 100%; padding: 8px;" required>
+            </div>
+            <div style="flex: 1;">
+                <label style="font-weight: bold;">Модель авто *</label>
+                <input type="text" name="car_model" value="{{ old.carModel }}" placeholder="например, Camry" style="width: 100%; padding: 8px;" required>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+            <div style="flex: 1;">
+                <label style="font-weight: bold;">Год выпуска *</label>
+                <input type="number" name="car_year" value="{{ old.carYear|default(2018) }}" min="1900" max="2027" style="width: 100%; padding: 8px;" required>
+            </div>
+            <div style="flex: 1;">
+                <label style="font-weight: bold;">Гос. номер *</label>
+                <input type="text" name="license_plate" value="{{ old.licensePlate }}" placeholder="AA1234BB" style="width: 100%; padding: 8px;" required>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold;">Желаемая дата визита *</label><br>
+            <input type="date" name="visit_date" value="{{ old.visitDate }}" min="{{ "now"|date("Y-m-d") }}" style="width: 100%; padding: 8px;" required>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold;">Комментарий к заказу</label><br>
+            <textarea name="comment" rows="4" placeholder="Опишите проблему или ваши пожелания..." style="width: 100%; padding: 8px;">{{ old.comment }}</textarea>
+        </div>
+
+        <button type="submit" style="width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 3px; font-size: 16px; cursor: pointer; font-weight: bold;">
+            Подтвердить запись
+        </button>
+    </form>
+</div>
+{% endblock %}

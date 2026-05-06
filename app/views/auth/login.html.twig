@@ -1,0 +1,43 @@
+{% extends "layouts/base.html.twig" %}
+
+{% block title %}Вход — AutoFix{% endblock %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 0 auto; padding: 20px;">
+    <h2>Вход в личный кабинет</h2>
+
+    {% if registered %}
+        <div style="color: green; border: 1px solid green; padding: 10px; margin-bottom: 15px; background: #e2f0d9;">
+            Вы успешно зарегистрировались! Теперь вы можете войти в систему.
+        </div>
+    {% endif %}
+
+    {% if errors %}
+        <div style="color: red; border: 1px solid red; padding: 10px; margin-bottom: 15px;">
+            <ul style="margin: 0; padding-left: 20px;">
+                {% for error in errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <form action="/login" method="POST">
+        <div style="margin-bottom: 10px;">
+            <label>Email</label><br>
+            <input type="email" name="email" value="{{ email }}" style="width: 100%;" required>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label>Пароль</label><br>
+            <input type="password" name="password" style="width: 100%;" required>
+        </div>
+
+        <button type="submit" style="width: 100%; padding: 10px; background: #007bff; color: white; border: none; cursor: pointer;">Войти</button>
+    </form>
+
+    <p style="text-align: center; margin-top: 15px;">
+        Нет аккаунта? <a href="/register">Создать аккаунт</a>
+    </p>
+</div>
+{% endblock %}

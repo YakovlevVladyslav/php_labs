@@ -1,0 +1,58 @@
+{% extends "layouts/base.html.twig" %}
+
+{% block title %}Мои записи — AutoFix{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Мои записи на СТО</h2>
+        <a href="/appointment/create" style="text-decoration: none; background: #28a745; color: white; padding: 10px 15px; border-radius: 3px; font-weight: bold;">Записаться еще</a>
+    </div>
+
+    {% if success %}
+        <div style="color: green; border: 1px solid green; padding: 10px; margin-bottom: 15px; background: #e2f0d9;">
+            ✔ Вы успешно записались на обслуживание! Мы ждем вас в назначенное время.
+        </div>
+    {% endif %}
+
+    {% if appointments %}
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+            <thead>
+                <tr style="background: #343a40; color: white; text-align: left;">
+                    <th style="padding: 12px;">Дата визита</th>
+                    <th style="padding: 12px;">Автомобиль</th>
+                    <th style="padding: 12px;">Услуга</th>
+                    <th style="padding: 12px;">Стоимость</th>
+                    <th style="padding: 12px;">Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in appointments %}
+                    <tr style="border-bottom: 1px solid #dee2e6;">
+                        <td style="padding: 12px; font-weight: bold;">{{ app.visit_date|date("d.m.Y") }}</td>
+                        <td style="padding: 12px;">{{ app.car_make }} {{ app.car_model }} ({{ app.car_year }} г.)<br><small style="color: #6c757d;">Гос. номер: {{ app.license_plate }}</small></td>
+                        <td style="padding: 12px;">{{ app.service_name }}</td>
+                        <td style="padding: 12px;">{{ app.service_price }} руб.</td>
+                        <td style="padding: 12px;">
+                            {% if app.status == 'pending' %}
+                                <span style="background: #ffc107; padding: 3px 8px; border-radius: 3px; font-size: 14px;">В ожидании</span>
+                            {% elseif app.status == 'in_progress' %}
+                                <span style="background: #17a2b8; color: white; padding: 3px 8px; border-radius: 3px; font-size: 14px;">В процессе</span>
+                            {% elseif app.status == 'completed' %}
+                                <span style="background: #28a745; color: white; padding: 3px 8px; border-radius: 3px; font-size: 14px;">Завершено</span>
+                            {% else %}
+                                <span style="background: #dc3545; color: white; padding: 3px 8px; border-radius: 3px; font-size: 14px;">Отменено</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div style="text-align: center; padding: 40px; border: 1px dashed #ccc; background: #fafafa; border-radius: 5px;">
+            <p style="font-size: 18px; color: #6c757d;">У вас пока нет ни одной записи.</p>
+            <a href="/appointment/create" style="display: inline-block; background: #007bff; color: white; text-decoration: none; padding: 10px 20px; border-radius: 3px; margin-top: 10px;">Записаться прямо сейчас</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

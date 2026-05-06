@@ -1,0 +1,165 @@
+{% extends "layouts/base.html.twig" %}
+
+{% block title %}Панель администратора — AutoFix{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 0 auto;">
+    <h2 style="color: #dc3545; border-bottom: 2px solid #dc3545; padding-bottom: 10px; margin-bottom: 25px;">
+        Панель управления СТО AutoFix
+    </h2>
+
+    {% if success %}
+        <div style="color: green; border: 1px solid green; padding: 12px; margin-bottom: 20px; background: #e2f0d9; border-radius: 4px; font-weight: bold;">
+            {% if success == 'status_updated' %}✔ Статус записи успешно изменен!{% endif %}
+            {% if success == 'admin_created' %}✔ Новый администратор успешно зарегистрирован!{% endif %}
+            {% if success == 'user_deleted' %}✔ Пользователь успешно удален из базы данных!{% endif %}
+            {% if success == 'service_created' %}✔ Новая услуга успешно добавлена в каталог!{% endif %}
+            {% if success == 'service_deleted' %}✔ Услуга успешно удалена из каталога!{% endif %}
+        </div>
+    {% endif %}
+
+    {% if error %}
+        <div style="color: red; border: 1px solid red; padding: 12px; margin-bottom: 20px; background: #f8d7da; border-radius: 4px; font-weight: bold;">
+            {% if error == 'invalid_admin_data' %}❌ Ошибка: Заполните все поля корректно (пароль от 6 символов).{% endif %}
+            {% if error == 'email_exists' %}❌ Ошибка: Пользователь с таким Email уже существует.{% endif %}
+            {% if error == 'cannot_delete_self' %}❌ Ошибка: Вы не можете удалить собственный аккаунт!{% endif %}
+            {% if error == 'invalid_service_data' %}❌ Ошибка: Неверно заполнены поля услуги (цена должна быть больше 0).{% endif %}
+            {% if error == 'db_error' %}❌ Ошибка базы данных. Попробуйте позже.{% endif %}
+        </div>
+    {% endif %}
+
+    <section style="margin-bottom: 50px;">
+        <h3 style="background: #343a40; color: white; padding: 10px 15px; margin-top: 0; border-radius: 4px;">1. Записи на ремонт авто</h3>
+        {% if appointments %}
+            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                <thead>
+                    <tr style="background: #e9ecef; text-align: left; border-bottom: 2px solid #dee2e6;">
+                        <th style="padding: 12px;">Дата визита</th>
+                        <th style="padding: 12px;">Клиент</th>
+                        <th style="padding: 12px;">Автомобиль</th>
+                        <th style="padding: 12px;">Услуга и Цена</th>
+                        <th style="padding: 12px; width: 250px;">Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in appointments %}
+                        <tr style="border-bottom: 1px solid #dee2e6; background: {% if app.status == 'pending' %}#fffdf0{% else %}#ffffff{% endif %};">
+                            <td style="padding: 12px; font-weight: bold; vertical-align: top;">{{ app.visit_date|date("d.m.Y") }}</td>
+                            <td style="padding: 12px; vertical-align: top;">
+                                <strong>{{ app.client_name }}</strong><br>
+                                <small style="color: #6c757d;">Тел: {{ app.client_phone }}</small>
+                            </td>
+                            <td style="padding: 12px; vertical-align: top;">
+                                {{ app.car_make }} {{ app.car_model }} ({{ app.car_year }} г.)<br>
+                                <small style="color: #495057; background: #e9ecef; padding: 2px 5px; border-radius: 3px;">{{ app.license_plate }}</small>
+                                {% if app.comment %}<div style="margin-top: 5px; font-size: 13px; color: #6c757d; font-style: italic;">«{{ app.comment }}»</div>{% endif %}
+                            </td>
+                            <td style="padding: 12px; vertical-align: top;">
+                                <strong>{{ app.service_name }}</strong><br>
+                                <span style="color: #28a745; font-weight: bold;">{{ app.service_price }} руб.</span>
+                            </td>
+                            <td style="padding: 12px; vertical-align: top;">
+                                <form action="/admin/update-status" method="POST" style="display: flex; gap: 5px;">
+                                    <input type="hidden" name="appointment_id" value="{{ app.id }}">
+                                    <select name="status" style="padding: 5px; flex-grow: 1;">
+                                        <option value="pending" {% if app.status == 'pending' %}selected{% endif %}>В ожидании</option>
+                                        <option value="in_progress" {% if app.status == 'in_progress' %}selected{% endif %}>В процессе</option>
+                                        <option value="completed" {% if app.status == 'completed' %}selected{% endif %}>Завершено</option>
+                                        <option value="cancelled" {% if app.status == 'cancelled' %}selected{% endif %}>Отменено</option>
+                                    </select>
+                                    <button type="submit" style="background: #007bff; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px;">ОК</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="color: #6c757d; font-style: italic; padding: 15px;">Записей пока нет.</p>
+        {% endif %}
+    </section>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 50px;">
+        
+        <section style="background: #f8f9fa; padding: 20px; border-radius: 6px; border: 1px solid #dee2e6;">
+            <h3 style="margin-top: 0; color: #343a40; border-bottom: 2px solid #6c757d; padding-bottom: 8px;">2. Управление пользователями</h3>
+            
+            <h4 style="margin-bottom: 10px; color: #495057;">+ Создать нового Администратора</h4>
+            <form action="/admin/create-admin" method="POST" style="margin-bottom: 25px; display: grid; gap: 8px;">
+                <input type="email" name="email" placeholder="Email нового админа" style="padding: 8px;" required>
+                <input type="text" name="full_name" placeholder="ФИО полностью" style="padding: 8px;" required>
+                <input type="text" name="phone" placeholder="Телефон" style="padding: 8px;" required>
+                <input type="password" name="password" placeholder="Пароль (мин. 6 симв.)" style="padding: 8px;" required>
+                <button type="submit" style="background: #28a745; color: white; border: none; padding: 10px; font-weight: bold; cursor: pointer; border-radius: 4px;">
+                    Создать Администратора
+                </button>
+            </form>
+
+            <h4 style="margin-bottom: 10px; color: #495057;">Список всех аккаунтов:</h4>
+            <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ced4da; background: white; border-radius: 4px; padding: 10px;">
+                {% for u in users %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee;">
+                        <div>
+                            <strong>{{ u.full_name }}</strong> 
+                            <span style="font-size: 11px; background: {% if u.role == 'admin' %}#f8d7da; color: #721c24;{% else %}#e2f0d9; color: #155724;{% endif %} padding: 2px 6px; border-radius: 10px;">
+                                {{ u.role }}
+                            </span>
+                            <br>
+                            <small style="color: #6c757d;">{{ u.email }} | {{ u.phone }}</small>
+                        </div>
+                        {% if u.id != session.user_id %}
+                            <form action="/admin/delete-user" method="POST" onsubmit="return confirm('Вы уверены, что хотите удалить этого пользователя и все его данные?');">
+                                <input type="hidden" name="user_id" value="{{ u.id }}">
+                                <button type="submit" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 12px;">
+                                    Удалить
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section style="background: #f8f9fa; padding: 20px; border-radius: 6px; border: 1px solid #dee2e6;">
+            <h3 style="margin-top: 0; color: #343a40; border-bottom: 2px solid #6c757d; padding-bottom: 8px;">3. Каталог услуг СТО</h3>
+            
+            <h4 style="margin-bottom: 10px; color: #495057;">+ Добавить новую услугу в каталог</h4>
+            <form action="/admin/create-service" method="POST" style="margin-bottom: 25px; display: grid; gap: 8px;">
+                <input type="text" name="name" placeholder="Название услуги (например: Замена свечей)" style="padding: 8px;" required>
+                <input type="text" name="category" placeholder="Категория (например: Двигатель)" style="padding: 8px;" required>
+                <input type="number" name="price" step="0.01" placeholder="Стоимость (руб.)" style="padding: 8px;" required>
+                <textarea name="description" placeholder="Краткое описание услуги..." rows="2" style="padding: 8px; font-family: sans-serif;"></textarea>
+                <button type="submit" style="background: #007bff; color: white; border: none; padding: 10px; font-weight: bold; cursor: pointer; border-radius: 4px;">
+                    Добавить услугу
+                </button>
+            </form>
+
+            <h4 style="margin-bottom: 10px; color: #495057;">Текущие услуги в системе:</h4>
+            <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ced4da; background: white; border-radius: 4px; padding: 10px;">
+                {% for s in services %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; {% if s.is_active == 0 %}opacity: 0.5; background: #f8f9fa;{% endif %}">
+                        <div style="padding-right: 10px;">
+                            <span style="font-size: 11px; background: #e9ecef; padding: 2px 5px; border-radius: 4px; display: inline-block; margin-bottom: 3px;">{{ s.category }}</span>
+                            {% if s.is_active == 0 %}
+                                <span style="font-size: 11px; background: #6c757d; color: white; padding: 2px 5px; border-radius: 4px; display: inline-block;">В архиве</span>
+                            {% endif %}
+                            <br>
+                            <strong>{{ s.name }}</strong> — <span style="color: #28a745; font-weight: bold;">{{ s.price }} руб.</span>
+                        </div>
+                        
+                        {% if s.is_active == 1 %}
+                            <form action="/admin/delete-service" method="POST" onsubmit="return confirm('Вы уверены, что хотите убрать услугу «{{ s.name }}» в архив?');" style="margin: 0;">
+                                <input type="hidden" name="service_id" value="{{ s.id }}">
+                                <button type="submit" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 12px;">
+                                    Удалить
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+    </div>
+</div>
+{% endblock %}
